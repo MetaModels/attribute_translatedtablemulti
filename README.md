@@ -1,10 +1,24 @@
-Translated multi table
-======================
+[![Build Status](https://travis-ci.org/MetaModels/attribute_translatedtablemulti.svg)](https://travis-ci.org/MetaModels/attribute_translatedtablemulti/branches)
+[![Latest Version tagged](http://img.shields.io/github/tag/MetaModels/attribute_translatedtablemulti.svg)](https://github.com/MetaModels/attribute_translatedtablemulti/tags)
+[![Latest Version on Packagist](http://img.shields.io/packagist/v/MetaModels/attribute_translatedtablemulti.svg)](https://packagist.org/packages/MetaModels/attribute_translatedtablemulti)
+[![Installations via composer per month](http://img.shields.io/packagist/dm/MetaModels/attribute_translatedtablemulti.svg)](https://packagist.org/packages/MetaModels/attribute_translatedtablemulti)
 
-The translated multi table attribute.
+# The translated multi attribute table
 
-With this attribute you are able to create complex table structures with the MultiColumnWizard.
-Create a config in the initConfig or somewhere else and write something like this:
+The translated multi attribute table for MetaModels.
+
+
+## Original idea by Byteworks:
+- [Ronny Binder](mailto:rb@bytworks.ch)
+- [Michael Bischof](mailto:mb@byteworks.ch)
+
+
+## The translated table multi attribute.
+
+With this attribute you are able to create complex table structures with the [MultiColumnWizard]( https://github.com/menatwork/contao-multicolumnwizard-bundle).
+Create the configuration in e.g. the app/Resources/contao/config/dcaconfig.php or somewhere else where the config is loaded and write something like this:
+
+The `mm_test` is the name of the table and the `multi_test` is the name of the field.
 
 ```php
 $GLOBALS['TL_CONFIG']['metamodelsattribute_multi']['mm_test']['multi_test'] = array(
@@ -35,13 +49,11 @@ $GLOBALS['TL_CONFIG']['metamodelsattribute_multi']['mm_test']['multi_test'] = ar
             'inputType' => 'text',
             'eval'      => array
             (
-                'style'=>'width:130px', 
+                'style'    =>'width:130px', 
                 'mandatory'=>false, 
-                'rgxp'=>'url'
+                'rgxp'     =>'url'
             )
         ),
     ),
 );
 ```
-
-The `mm_test` is the name of the table and the `multi_test` is the name of the field.
