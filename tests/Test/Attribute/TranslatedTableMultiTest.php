@@ -19,7 +19,7 @@
  * @filesource
  */
 
-namespace MetaModels\AttributeTranslatedmultiBundle\Test\Attribute;
+namespace MetaModels\AttributeTranslatedTableMultiBundle\Test\Attribute;
 
 use Doctrine\DBAL\Connection;
 use MetaModels\AttributeTranslatedTableMultiBundle\Attribute\TranslatedTableMulti;

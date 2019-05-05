@@ -13,8 +13,6 @@
  * @package    MetaModels
  * @subpackage AttributeTranslatedTableMulti
  * @author     Andreas Dziemba <adziemba@web.de>
- *  @author     Andreas Dziemba <dziemba@men-at-work.de>
- * @author     David Maack <david.maack@arcor.de>
  * @author     Andreas Isaak <andy.jared@googlemail.com>
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     David Greminger <david.greminger@1up.io>
