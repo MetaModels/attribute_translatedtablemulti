@@ -3,7 +3,7 @@
 /**
  * This file is part of MetaModels/attribute_translatedtablemulti.
  *
- * (c) 2012-2019 The MetaModels team.
+ * (c) 2012-2020 The MetaModels team.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -18,7 +18,8 @@
  * @author     David Greminger <david.greminger@1up.io>
  * @author     David Maack <david.maack@arcor.de>
  * @author     Stefan Heimes <stefan_heimes@hotmail.com>
- * @copyright  2012-2019 The MetaModels team.
+ * @author     Ingolf Steinhardt <info@e-spin.de>
+ * @copyright  2012-2020 The MetaModels team.
  * @license    https://github.com/MetaModels/attribute_translatedtablemulti/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
@@ -143,31 +144,31 @@ class TranslatedTableMulti extends Base implements ITranslated, IComplex
         $varCol = null
     ) {
         $queryBuilder
-            ->andWhere('att_id = :att_id')
+            ->andWhere('t.att_id = :att_id')
             ->setParameter('att_id', (int) $this->get('id'));
 
         if (!empty($mixIds)) {
             if (is_array($mixIds)) {
                 $queryBuilder
-                    ->andWhere('item_id IN (:item_ids)')
+                    ->andWhere('t.item_id IN (:item_ids)')
                     ->setParameter('item_ids', $mixIds, Connection::PARAM_STR_ARRAY);
             } else {
                 $queryBuilder
-                    ->andWhere('item_id = :item_id')
+                    ->andWhere('t.item_id = :item_id')
                     ->setParameter('item_id', $mixIds);
             }
         }
 
         if (is_int($intRow) && is_string($varCol)) {
             $queryBuilder
-                ->andWhere('row = :row AND col = :col')
+                ->andWhere('t.row = :row AND t.col = :col')
                 ->setParameter('row', $intRow)
                 ->setParameter('col', $varCol);
         }
 
         if ($strLangCode) {
             $queryBuilder
-                ->andWhere('langcode = :langcode')
+                ->andWhere('t.langcode = :langcode')
                 ->setParameter('langcode', $strLangCode);
         }
     }
@@ -245,9 +246,9 @@ class TranslatedTableMulti extends Base implements ITranslated, IComplex
     {
         $queryBuilder = $this->connection->createQueryBuilder()
             ->select('*')
-            ->from($this->getValueTable())
-            ->orderBy('row', 'ASC')
-            ->addOrderBy('col', 'ASC');
+            ->from($this->getValueTable(), 't')
+            ->orderBy('t.row', 'ASC')
+            ->addOrderBy('t.col', 'ASC');
 
         $this->buildWhere($queryBuilder, $arrIds, $strLangCode);
         $statement = $queryBuilder->execute();
@@ -294,7 +295,7 @@ class TranslatedTableMulti extends Base implements ITranslated, IComplex
                     $queryBuilder = $this->connection->createQueryBuilder()->insert($this->getValueTable());
                     foreach ($values as $name => $value) {
                         $queryBuilder
-                            ->setValue($name, ':' . $name)
+                            ->setValue($this->getValueTable() . '.' . $name, ':' . $name)
                             ->setParameter($name, $value);
                     }
 
@@ -304,7 +305,7 @@ class TranslatedTableMulti extends Base implements ITranslated, IComplex
                     $queryBuilder = $this->connection->createQueryBuilder()->update($this->getValueTable());
                     foreach ($values as $name => $value) {
                         $queryBuilder
-                            ->set($name, ':' . $name)
+                            ->set($this->getValueTable() . '.' . $name, ':' . $name)
                             ->setParameter($name, $value);
                     }
 
