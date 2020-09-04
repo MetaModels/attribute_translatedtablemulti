@@ -5,3 +5,9 @@ services:
       - "@database_connection"
     tags:
       - { name: metamodels.attribute_factory }
+
+  MetaModels\AttributeTranslatedTableMultiBundle\Migration\ChangeTranslatedTableNameMigration:
+    arguments:
+      - '@database_connection'
+    tags:
+      - name: contao.migration
