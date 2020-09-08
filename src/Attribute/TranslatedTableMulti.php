@@ -39,7 +39,6 @@ use Doctrine\DBAL\Connection;
  */
 class TranslatedTableMulti extends Base implements ITranslated, IComplex
 {
-
     /**
      * Database connection.
      *
@@ -82,7 +81,7 @@ class TranslatedTableMulti extends Base implements ITranslated, IComplex
      */
     public function getAttributeSettingNames()
     {
-        return array_merge(parent::getAttributeSettingNames(), array());
+        return array_merge(parent::getAttributeSettingNames(), []);
     }
 
     /**
@@ -100,7 +99,7 @@ class TranslatedTableMulti extends Base implements ITranslated, IComplex
      *
      * @SuppressWarnings(PHPMD.Superglobals)
      */
-    public function getFieldDefinition($arrOverrides = array())
+    public function getFieldDefinition($arrOverrides = [])
     {
         // Get table and column
         $strTable = $this->getMetaModel()->getTableName();
@@ -108,7 +107,7 @@ class TranslatedTableMulti extends Base implements ITranslated, IComplex
 
         $arrFieldDef                         = parent::getFieldDefinition($arrOverrides);
         $arrFieldDef['inputType']            = 'multiColumnWizard';
-        $arrFieldDef['eval']['columnFields'] = array();
+        $arrFieldDef['eval']['columnFields'] = [];
 
         // Check for override in local config
         if (isset($GLOBALS['TL_CONFIG']['metamodelsattribute_multi'][$strTable][$strField])) {
@@ -128,47 +127,58 @@ class TranslatedTableMulti extends Base implements ITranslated, IComplex
     }
 
     /**
-     * Build the where clause
+     * Build the where clause.
      *
-     * @param QueryBuilder $queryBuilder
-     * @param $mixIds
-     * @param null         $strLangCode
-     * @param null         $intRow
-     * @param null         $varCol
+     * @param QueryBuilder   $queryBuilder The query builder.
+     *
+     * @param null|array|int $mixIds       One, none or many ids to use.
+     *
+     * @param null           $strLangCode  The language code, optional.
+     *
+     * @param null           $intRow       The row number, optional.
+     *
+     * @param null           $varCol       The col number, optional.
+     *
+     * @param null           $tableAlias   The table alias, optional.
      */
     protected function buildWhere(
         QueryBuilder $queryBuilder,
         $mixIds,
         $strLangCode = null,
         $intRow = null,
-        $varCol = null
+        $varCol = null,
+        $tableAlias = null
     ) {
+        if (null !== $tableAlias) {
+            $tableAlias .= '.';
+        }
+
         $queryBuilder
-            ->andWhere('t.att_id = :att_id')
+            ->andWhere($tableAlias . 'att_id = :att_id')
             ->setParameter('att_id', (int) $this->get('id'));
 
         if (!empty($mixIds)) {
             if (is_array($mixIds)) {
                 $queryBuilder
-                    ->andWhere('t.item_id IN (:item_ids)')
+                    ->andWhere($tableAlias . 'item_id IN (:item_ids)')
                     ->setParameter('item_ids', $mixIds, Connection::PARAM_STR_ARRAY);
             } else {
                 $queryBuilder
-                    ->andWhere('t.item_id = :item_id')
+                    ->andWhere($tableAlias . 'item_id = :item_id')
                     ->setParameter('item_id', $mixIds);
             }
         }
 
         if (is_int($intRow) && is_string($varCol)) {
             $queryBuilder
-                ->andWhere('t.row = :row AND t.col = :col')
+                ->andWhere($tableAlias . 'row = :row AND ' . $tableAlias . 'col = :col')
                 ->setParameter('row', $intRow)
                 ->setParameter('col', $varCol);
         }
 
         if ($strLangCode) {
             $queryBuilder
-                ->andWhere('t.langcode = :langcode')
+                ->andWhere($tableAlias . 'langcode = :langcode')
                 ->setParameter('langcode', $strLangCode);
         }
     }
@@ -179,7 +189,7 @@ class TranslatedTableMulti extends Base implements ITranslated, IComplex
     public function valueToWidget($varValue)
     {
         if (!is_array($varValue)) {
-            return array();
+            return [];
         }
 
         $widgetValue = array();
@@ -250,9 +260,9 @@ class TranslatedTableMulti extends Base implements ITranslated, IComplex
             ->orderBy('t.row', 'ASC')
             ->addOrderBy('t.col', 'ASC');
 
-        $this->buildWhere($queryBuilder, $arrIds, $strLangCode);
+        $this->buildWhere($queryBuilder, $arrIds, $strLangCode, null, null, 't');
         $statement = $queryBuilder->execute();
-        $arrReturn = array();
+        $arrReturn = [];
         while ($value = $statement->fetch(\PDO::FETCH_ASSOC)) {
             $arrReturn[$value['item_id']][$value['row']][$value['col']] = $value;
         }
@@ -265,9 +275,9 @@ class TranslatedTableMulti extends Base implements ITranslated, IComplex
      *
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
-    public function searchForInLanguages($strPattern, $arrLanguages = array())
+    public function searchForInLanguages($strPattern, $arrLanguages = [])
     {
-        return array();
+        return [];
     }
 
 
@@ -310,7 +320,7 @@ class TranslatedTableMulti extends Base implements ITranslated, IComplex
                     }
 
                     $updateSql = $queryBuilder->getSQL();
-                    $sql      .= ' ON DUPLICATE KEY ' . str_replace($this->getValueTable() . ' SET ', '', $updateSql);
+                    $sql       .= ' ON DUPLICATE KEY ' . str_replace($this->getValueTable() . ' SET ', '', $updateSql);
 
                     $this->connection->executeQuery($sql, $parameters);
                 }
@@ -324,7 +334,7 @@ class TranslatedTableMulti extends Base implements ITranslated, IComplex
     public function unsetValueFor($arrIds, $strLangCode)
     {
         $queryBuilder = $this->connection->createQueryBuilder()->delete($this->getValueTable());
-        $this->buildWhere($queryBuilder, $arrIds, $strLangCode);
+        $this->buildWhere($queryBuilder, $arrIds, $strLangCode, null, null, $this->getValueTable());
         $queryBuilder->execute();
     }
 
@@ -335,7 +345,7 @@ class TranslatedTableMulti extends Base implements ITranslated, IComplex
      */
     public function getFilterOptions($idList, $usedOnly, &$arrCount = null)
     {
-        return array();
+        return [];
     }
 
     /**
@@ -362,7 +372,7 @@ class TranslatedTableMulti extends Base implements ITranslated, IComplex
 
         // Second round, fetch fallback languages if not all items could be resolved.
         if ((count($arrReturn) < count($arrIds)) && ($strActiveLanguage != $strFallbackLanguage)) {
-            $arrFallbackIds = array();
+            $arrFallbackIds = [];
             foreach ($arrIds as $intId) {
                 if (empty($arrReturn[$intId])) {
                     $arrFallbackIds[] = $intId;
