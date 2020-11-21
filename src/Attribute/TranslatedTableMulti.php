@@ -294,7 +294,7 @@ class TranslatedTableMulti extends Base implements ITranslated, IComplex
 
         foreach ($arrIds as $intId) {
             // Walk every row.
-            foreach ($arrValues[$intId] as $row) {
+            foreach ((array) $arrValues[$intId] as $row) {
                 // Walk every column and update / insert the value.
                 foreach ($row as $col) {
                     $values = $this->getSetValues($col, $intId, $strLangCode);
