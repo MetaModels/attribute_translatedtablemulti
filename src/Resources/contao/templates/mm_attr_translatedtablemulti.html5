@@ -7,7 +7,8 @@ $strActiveLang   = array_key_exists($strActiveLang, $this->attribute->getMetaMod
 ?>
 
 <table class="translatedtablemulti<?php echo $this->additional_class; ?>">
-<?php $countCol = count($this->attribute->get('translatedtablemulti_cols')[$strFallbackLang]); if (!$this->settings->get('translatedtablemulti_hide_tablehead')) : ?>
+<?php $countCol = count((array) $this->attribute->get('translatedtablemulti_cols')[$strFallbackLang]);
+      if (!$this->settings->get('translatedtablemulti_hide_tablehead')) : ?>
     <thead>
         <tr>
             <?php foreach (is_array($this->attribute->get('translatedtablemulti_cols')[$strActiveLang]) ? $this->attribute->get('translatedtablemulti_cols')[$strActiveLang]: array() as $headCol) : ?>
@@ -17,7 +18,7 @@ $strActiveLang   = array_key_exists($strActiveLang, $this->attribute->getMetaMod
     </thead>
 <?php endif; ?>
     <tbody>
-        <?php foreach ($this->raw as $k => $row) : ?>
+        <?php foreach ((array) $this->raw as $k => $row) : ?>
             <tr class="<?= ($k % 2 == 0 ? 'odd' : 'even'); ?>">
                 <?php foreach ($row as $kk =>$col): ?>
                     <td><?php echo $col['value']; ?></td>
