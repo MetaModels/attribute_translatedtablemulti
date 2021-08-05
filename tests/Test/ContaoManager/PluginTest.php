@@ -3,7 +3,7 @@
 /**
  * This file is part of MetaModels/attribute_translatedtablemulti.
  *
- * (c) 2012-2019 The MetaModels team.
+ * (c) 2012-221 The MetaModels team.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -14,7 +14,8 @@
  * @subpackage AttributeTableMulti
  * @author     Andreas Dziemba <adziemba@web.de>
  * @author     Stefan Heimes <stefan_heimes@hotmail.com>
- * @copyright  2012-2019 The MetaModels team.
+ * @author     Ingolf Steinhardt <info@e-spin.de>
+ * @copyright  2012-2021 The MetaModels team.
  * @license    https://github.com/MetaModels/attribute_translatedtablemulti/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
@@ -31,6 +32,8 @@ use PHPUnit\Framework\TestCase;
 
 /**
  * Unit tests the contao manager plugin.
+ *
+ * @covers \MetaModels\AttributeTranslatedTableMultiBundle\ContaoManager\Plugin
  */
 class PluginTest extends TestCase
 {
@@ -58,13 +61,13 @@ class PluginTest extends TestCase
         $plugin  = new Plugin();
         $bundles = $plugin->getBundles($parser);
 
-        $this->assertContainsOnlyInstancesOf(BundleConfig::class, $bundles);
-        $this->assertCount(1, $bundles);
+        self::assertContainsOnlyInstancesOf(BundleConfig::class, $bundles);
+        self::assertCount(1, $bundles);
 
         /** @var BundleConfig $bundleConfig */
         $bundleConfig = $bundles[0];
 
-        $this->assertEquals($bundleConfig->getLoadAfter(), [ContaoCoreBundle::class, MetaModelsCoreBundle::class]);
-        $this->assertEquals($bundleConfig->getReplace(), ['metamodelsattribute_translatedtablemulti', 'metamodelsattribute_translatedmulti']);
+        self::assertEquals([ContaoCoreBundle::class, MetaModelsCoreBundle::class], $bundleConfig->getLoadAfter());
+        self::assertEquals(['metamodelsattribute_translatedmulti', 'metamodelsattribute_translatedtablemulti'], $bundleConfig->getReplace());
     }
 }
