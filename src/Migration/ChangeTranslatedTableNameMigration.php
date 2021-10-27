@@ -66,6 +66,15 @@ class ChangeTranslatedTableNameMigration extends AbstractMigration
     public function shouldRun(): bool
     {
         $schemaManager = $this->connection->getSchemaManager();
+        if ($schemaManager->tablesExist(['tl_metamodel_translatedmulti'])
+            && $schemaManager->tablesExist(['tl_metamodel_translatedtablemulti'])) {
+            $error = 'Could not migrate attribute_translatedtablemulti.';
+            $error .= ' Reason: There are both tables available.';
+            $error .= ' Old table: tl_metamodel_translatedmulti | New table: attribute_translatedtablemulti.';
+            $error .= ' Please migrate the tables manually or delete one table.';
+            throw new \RuntimeException($error);
+        }
+
         if ($schemaManager->tablesExist(['tl_metamodel_translatedmulti'])) {
             return true;
         }
