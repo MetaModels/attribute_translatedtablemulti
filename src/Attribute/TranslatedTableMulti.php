@@ -286,11 +286,7 @@ class TranslatedTableMulti extends Base implements ITranslated, IComplex
             foreach ($arrValues[$intId] as $row) {
                 // Walk every column and update / insert the value.
                 foreach ($row as $col) {
-                    $values = $this->getSetValues($col, $intId, $strLangCode);
-                    if ($values['value'] === '') {
-                        continue;
-                    }
-
+                    $values       = $this->getSetValues($col, $intId, $strLangCode);
                     $queryBuilder = $this->connection->createQueryBuilder()->insert($this->getValueTable());
                     foreach ($values as $name => $value) {
                         $queryBuilder
