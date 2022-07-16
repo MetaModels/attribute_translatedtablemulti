@@ -12,14 +12,11 @@
  *
  * @package    MetaModels
  * @subpackage AttributeTranslatedTableMulti
- * @author     Stefan Heimes <stefan_heimes@hotmail.com>
  * @author     Ingolf Steinhardt <info@e-spin.de>
  * @copyright  2012-2022 The MetaModels team.
  * @license    https://github.com/MetaModels/attribute_translatedtablemulti/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
 
-/**
- * Fields
- */
-$GLOBALS['TL_LANG']['tl_metamodel_attribute']['typeOptions']['translatedtablemulti'] = 'Translated table multi (MCW)';
+$GLOBALS['TL_LANG']['tl_metamodel_rendersetting']['translatedtablemulti_hide_tablehead'] =
+    ['Hide tablehead', 'Select to hide the head of the table.'];
