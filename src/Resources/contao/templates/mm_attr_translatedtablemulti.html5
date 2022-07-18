@@ -1,9 +1,10 @@
 <?php
 \Contao\Controller::loadDataContainer($this->attribute->getMetaModel()->getTableName());
+\Contao\Controller::loadLanguageFile($this->attribute->getMetaModel()->getTableName());
 
 $config = $GLOBALS['TL_CONFIG']['metamodelsattribute_multi'][$this->attribute->getMetaModel()->getTableName(
     )][$this->attribute->getColName()] ?? [];
-if (!is_array($config['columnFields'])) {
+if (!isset($config['columnFields']) || !is_array($config['columnFields'])) {
     $config['columnFields'] = [];
 }
 $columnNames = array_keys($config['columnFields']);
@@ -12,14 +13,14 @@ $columnNames = array_keys($config['columnFields']);
     <?php if (!$this->settings->get('translatedtablemulti_hide_tablehead')) : ?>
         <thead>
         <tr>
-            <?php foreach ($config['columnFields'] as $headCol): ?>
+            <?php dump($config['columnFields']); foreach ($config['columnFields'] as $headCol): ?>
                 <th><?= is_array($headCol['label']) ? $headCol['label'][0] : $headCol['label'] ?></th>
             <?php endforeach; ?>
         </tr>
         </thead>
     <?php endif; ?>
     <tbody>
-    <?php foreach ((array) $this->raw as $k => $row) : ?>
+    <?php dump($this); foreach ((array) $this->raw as $k => $row) : ?>
         <tr class="<?= ($k % 2 == 0 ? 'odd' : 'even'); ?>">
             <?php foreach ((array) $columnNames as $columnName): ?>
                 <td><?= $row[$columnName]['value'] ?? ''; ?></td>
