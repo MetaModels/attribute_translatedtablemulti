@@ -13,6 +13,7 @@
  * @package    MetaModels/attribute_translatedtablemulti
  * @author     Stefan Heimes <stefan_heimes@hotmail.com>
  * @author     Ingolf Steinhardt <info@e-spin.de>
+ * @author     Sven Baumann <baumann.sv@gmail.com>
  * @copyright  2012-2022 The MetaModels team.
  * @license    https://github.com/MetaModels/attribute_translatedtablemulti/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
@@ -25,6 +26,7 @@ namespace MetaModels\AttributeTranslatedTableMultiBundle\Migration;
 use Contao\CoreBundle\Migration\AbstractMigration;
 use Contao\CoreBundle\Migration\MigrationResult;
 use Doctrine\DBAL\Connection;
+use RuntimeException;
 
 /**
  * Change the database table name from "tl_metamodel_translatedmulti" to "tl_metamodel_translatedtablemulti".
@@ -63,6 +65,8 @@ class ChangeTranslatedTableNameMigration extends AbstractMigration
      * - the MM tables tl_metamodel_translatedmulti exist.
      *
      * @return bool
+     *
+     * @throws RuntimeException If the old table not migrated.
      */
     public function shouldRun(): bool
     {
@@ -73,7 +77,7 @@ class ChangeTranslatedTableNameMigration extends AbstractMigration
             $error .= ' Reason: There are both tables available.';
             $error .= ' Old table: tl_metamodel_translatedmulti | New table: attribute_translatedtablemulti.';
             $error .= ' Please migrate the tables manually or delete one table.';
-            throw new \RuntimeException($error);
+            throw new RuntimeException($error);
         }
 
         if ($schemaManager->tablesExist(['tl_metamodel_translatedmulti'])) {
