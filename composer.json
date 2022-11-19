@@ -11,7 +11,7 @@
     "multicolumnwizard"
   ],
   "type": "contao-bundle",
-  "homepage": "http://now.metamodel.me/",
+  "homepage": "https://now.metamodel.me/",
   "license": "LGPL-3.0-or-later",
   "authors": [
     {
@@ -29,7 +29,7 @@
     {
       "name": "Christian Schiffler",
       "email": "c.schiffler@cyberspectrum.de",
-      "homepage": "http://www.cyberspectrum.de",
+      "homepage": "https://www.cyberspectrum.de",
       "role": "Developer"
     },
     {
@@ -50,12 +50,12 @@
   },
   "require": {
     "php": "^7.4",
+    "ext-pdo": "*",
     "contao-community-alliance/dc-general": "^2.2",
     "contao/core-bundle": "^4.9.0, <4.13.0",
     "metamodels/core": "^2.2",
     "symfony/dependency-injection": "^4.4",
-    "symfony/http-kernel": "^4.4",
-    "ext-pdo": "*"
+    "symfony/http-kernel": "^4.4"
   },
   "require-dev": {
     "contao/manager-plugin": "^2.1",
