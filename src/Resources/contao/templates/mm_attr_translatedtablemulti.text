@@ -1,10 +1,18 @@
-<?php 
-foreach ((array) $this->raw as $k => $row)
-{
-	foreach ($row as $kk => $col)
-	{
-		echo (($kk !=0) ? ' ': '' ).$col['value'];
-	}
-	if ($k != (count($this->raw['value']) -1)) echo "\n";
+<?php
+\Contao\Controller::loadDataContainer($this->attribute->getMetaModel()->getTableName());
+\Contao\Controller::loadLanguageFile($this->attribute->getMetaModel()->getTableName());
+
+$config = $GLOBALS['TL_CONFIG']['metamodelsattribute_multi'][$this->attribute->getMetaModel()->getTableName(
+    )][$this->attribute->getColName()] ?? [];
+if (!isset($config['columnFields']) || !is_array($config['columnFields'])) {
+    $config['columnFields'] = [];
 }
-?>
+$columnNames = array_keys($config['columnFields']);
+
+$rowCount = count((array) $this->raw);
+foreach ((array) $this->raw as $k => $row) {
+    foreach ($columnNames as $kk => $columnName) {
+        echo $row[$columnName]['value'] ?? '';
+    }
+    if ($k != ($rowCount -1)) echo "\n";
+}
