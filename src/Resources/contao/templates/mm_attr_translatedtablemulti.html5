@@ -9,7 +9,7 @@ if (!isset($config['columnFields']) || !is_array($config['columnFields'])) {
 }
 $columnNames = array_keys($config['columnFields']);
 ?>
-<table class="translatedtablemulti<?= $this->additional_class; ?>">
+<table class="tablemulti<?= $this->additional_class; ?>">
     <?php if (!$this->settings->get('translatedtablemulti_hide_tablehead')) : ?>
         <thead>
         <tr>
