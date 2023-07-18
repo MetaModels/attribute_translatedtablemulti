@@ -3,7 +3,7 @@
 /**
  * This file is part of MetaModels/attribute_translatedtablemulti.
  *
- * (c) 2012-2022 The MetaModels team.
+ * (c) 2012-2023 The MetaModels team.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -20,7 +20,7 @@
  * @author     Stefan Heimes <stefan_heimes@hotmail.com>
  * @author     Ingolf Steinhardt <info@e-spin.de>
  * @author     Sven Baumann <baumann.sv@gmail.com>
- * @copyright  2012-2022 The MetaModels team.
+ * @copyright  2012-2023 The MetaModels team.
  * @license    https://github.com/MetaModels/attribute_translatedtablemulti/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
@@ -112,14 +112,21 @@ class TranslatedTableMulti extends Base implements ITranslated, IComplex
 
         // Check for override in local config
         if (isset($GLOBALS['TL_CONFIG']['metamodelsattribute_multi'][$strTable][$strField])) {
-            // Cleanup the config.
+            // Retrieve the config.
             $config = $GLOBALS['TL_CONFIG']['metamodelsattribute_multi'][$strTable][$strField];
+
+            // Add CSS class.
+            $config['tl_class'] = isset($config['tl_class'])
+                ? $config['tl_class'] . ' ' . $arrFieldDef['eval']['tl_class']
+                : $config['tl_class'];
+
+            // Add field configs.
             foreach ($config['columnFields'] as $col => $data) {
                 $config['columnFields']['col_' . $col] = $data;
                 unset($config['columnFields'][$col]);
             }
 
-            // Build the array
+            // Build the array.
             $arrFieldDef['inputType'] = 'multiColumnWizard';
             $arrFieldDef['eval']      = $config;
         }
