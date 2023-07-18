@@ -53,11 +53,9 @@ class TranslatedTableMulti extends Base implements ITranslated, IComplex
      * Note that you should not use this directly but use the factory classes to instantiate attributes.
      *
      * @param IMetaModel $objMetaModel The MetaModel instance this attribute belongs to.
-     *
      * @param array      $arrData      The information array, for attribute information, refer to documentation of
      *                                 table tl_metamodel_attribute and documentation of the certain attribute classes
      *                                 for information what values are understood.
-     *
      * @param Connection $connection   Database connection.
      */
     public function __construct(IMetaModel $objMetaModel, array $arrData = [], Connection $connection = null)
@@ -138,15 +136,10 @@ class TranslatedTableMulti extends Base implements ITranslated, IComplex
      * Build the where clause.
      *
      * @param QueryBuilder   $queryBuilder The query builder.
-     *
      * @param null|array|int $mixIds       One, none or many ids to use.
-     *
      * @param null           $strLangCode  The language code, optional.
-     *
      * @param null           $intRow       The row number, optional.
-     *
      * @param null           $varCol       The col number, optional.
-     *
      * @param null           $tableAlias   The table alias, optional.
      */
     protected function buildWhere(
@@ -166,7 +159,7 @@ class TranslatedTableMulti extends Base implements ITranslated, IComplex
             ->setParameter('att_id', (int) $this->get('id'));
 
         if (!empty($mixIds)) {
-            if (is_array($mixIds)) {
+            if (\is_array($mixIds)) {
                 $queryBuilder
                     ->andWhere($tableAlias . 'item_id IN (:item_ids)')
                     ->setParameter('item_ids', $mixIds, Connection::PARAM_STR_ARRAY);
@@ -177,7 +170,7 @@ class TranslatedTableMulti extends Base implements ITranslated, IComplex
             }
         }
 
-        if (is_int($intRow) && is_string($varCol)) {
+        if (\is_int($intRow) && \is_string($varCol)) {
             $queryBuilder
                 ->andWhere($tableAlias . 'row = :row AND ' . $tableAlias . 'col = :col')
                 ->setParameter('row', $intRow)
@@ -196,7 +189,7 @@ class TranslatedTableMulti extends Base implements ITranslated, IComplex
      */
     public function valueToWidget($varValue)
     {
-        if (!is_array($varValue)) {
+        if (!\is_array($varValue)) {
             return [];
         }
 
@@ -215,14 +208,14 @@ class TranslatedTableMulti extends Base implements ITranslated, IComplex
      */
     public function widgetToValue($varValue, $itemId)
     {
-        if (!is_array($varValue)) {
+        if (!\is_array($varValue)) {
             return null;
         }
 
         $newValue = array();
         foreach ($varValue as $k => $row) {
             foreach ($row as $kk => $col) {
-                $kk = substr($kk, 4);
+                $kk = \substr($kk, 4);
 
                 $newValue[$k][$kk]['value'] = $col;
                 $newValue[$k][$kk]['col']   = $kk;
@@ -237,9 +230,7 @@ class TranslatedTableMulti extends Base implements ITranslated, IComplex
      * Retrieve the setter array.
      *
      * @param array  $arrCell     The cells of the table.
-     *
      * @param int    $intId       The id of the item.
-     *
      * @param string $strLangCode The language code.
      *
      * @return array
@@ -269,9 +260,9 @@ class TranslatedTableMulti extends Base implements ITranslated, IComplex
             ->addOrderBy('t.col', 'ASC');
 
         $this->buildWhere($queryBuilder, $arrIds, $strLangCode, null, null, 't');
-        $statement = $queryBuilder->execute();
+        $statement = $queryBuilder->executeQuery();
         $arrReturn = [];
-        while ($value = $statement->fetch(\PDO::FETCH_ASSOC)) {
+        while ($value = $statement->fetchAssociative()) {
             $arrReturn[$value['item_id']][$value['row']][$value['col']] = $value;
         }
 
@@ -295,7 +286,7 @@ class TranslatedTableMulti extends Base implements ITranslated, IComplex
     public function setTranslatedDataFor($arrValues, $strLangCode)
     {
         // Get the ids.
-        $arrIds = array_keys($arrValues);
+        $arrIds = \array_keys($arrValues);
 
         // Reset all data for the ids in language.
         $this->unsetValueFor($arrIds, $strLangCode);
@@ -343,7 +334,7 @@ class TranslatedTableMulti extends Base implements ITranslated, IComplex
     {
         $queryBuilder = $this->connection->createQueryBuilder()->delete($this->getValueTable());
         $this->buildWhere($queryBuilder, $arrIds, $strLangCode, null, null, $this->getValueTable());
-        $queryBuilder->execute();
+        $queryBuilder->executeQuery();
     }
 
     /**
@@ -379,7 +370,7 @@ class TranslatedTableMulti extends Base implements ITranslated, IComplex
         $arrReturn = $this->getTranslatedDataFor($arrIds, $strActiveLanguage);
 
         // Second round, fetch fallback languages if not all items could be resolved.
-        if ((count($arrReturn) < count($arrIds)) && ($strActiveLanguage != $strFallbackLanguage)) {
+        if ((\count($arrReturn) < \count($arrIds)) && ($strActiveLanguage != $strFallbackLanguage)) {
             $arrFallbackIds = [];
             foreach ($arrIds as $intId) {
                 if (empty($arrReturn[$intId])) {
@@ -408,7 +399,7 @@ class TranslatedTableMulti extends Base implements ITranslated, IComplex
      */
     public function unsetDataFor($arrIds)
     {
-        if (!is_array($arrIds)) {
+        if (!\is_array($arrIds)) {
             throw new \RuntimeException(
                 'TranslatedTableMulti::unsetDataFor() invalid parameter given! Array of ids is needed.',
                 1
@@ -421,6 +412,6 @@ class TranslatedTableMulti extends Base implements ITranslated, IComplex
 
         $queryBuilder = $this->connection->createQueryBuilder()->delete($this->getValueTable());
         $this->buildWhere($queryBuilder, $arrIds);
-        $queryBuilder->execute();
+        $queryBuilder->executeQuery();
     }
 }
