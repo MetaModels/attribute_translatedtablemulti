@@ -114,9 +114,11 @@ class TranslatedTableMulti extends Base implements ITranslated, IComplex
             $config = $GLOBALS['TL_CONFIG']['metamodelsattribute_multi'][$strTable][$strField];
 
             // Add CSS class.
-            $config['tl_class'] = isset($config['tl_class'])
-                ? $config['tl_class'] . ' ' . $arrFieldDef['eval']['tl_class']
-                : $config['tl_class'];
+            if (!empty($arrFieldDef['eval']['tl_class'])) {
+                $config['tl_class'] = isset($config['tl_class'])
+                    ? $config['tl_class'] . ' ' . $arrFieldDef['eval']['tl_class']
+                    : $config['tl_class'];
+            }
 
             // Add field configs.
             foreach ($config['columnFields'] as $col => $data) {
