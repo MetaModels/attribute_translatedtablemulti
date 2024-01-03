@@ -1,6 +1,8 @@
 {
   "name": "metamodels/attribute_translatedtablemulti",
   "description": "MetaModels attribute for dynamic translated multi attribute table",
+  "license": "LGPL-3.0-or-later",
+  "type": "contao-bundle",
   "keywords": [
     "contao",
     "metamodels",
@@ -10,9 +12,6 @@
     "translatable",
     "multicolumnwizard"
   ],
-  "type": "contao-bundle",
-  "homepage": "https://now.metamodel.me/",
-  "license": "LGPL-3.0-or-later",
   "authors": [
     {
       "name": "Ronny Binder",
@@ -43,6 +42,7 @@
       "role": "Developer"
     }
   ],
+  "homepage": "https://now.metamodel.me/",
   "support": {
     "email": "mail@metamodel.me",
     "issues": "https://github.com/MetaModels/attribute_translatedtablemulti/issues",
@@ -51,8 +51,8 @@
   "require": {
     "php": "^8.1",
     "ext-pdo": "*",
-    "contao-community-alliance/dc-general": "^2.3@dev",
-    "contao/core-bundle": "^4.13.0, <5.0",
+    "contao-community-alliance/dc-general": "^2.3",
+    "contao/core-bundle": "^4.13.0 <5.0",
     "metamodels/core": "^2.3@dev",
     "symfony/dependency-injection": "^5.4",
     "symfony/http-kernel": "^5.4"
@@ -60,8 +60,14 @@
   "require-dev": {
     "contao/manager-plugin": "^2.1",
     "menatwork/contao-multicolumnwizard-bundle": "^3.5",
-    "phpcq/all-tasks": "^1.3"
+    "phpcq/runner-bootstrap": "^1.0@dev"
   },
+  "repositories": [
+    {
+      "type": "composer",
+      "url": "https://packages.cyberspectrum.de/r"
+    }
+  ],
   "autoload": {
     "psr-4": {
       "MetaModels\\AttributeTranslatedTableMultiBundle\\": "src"
@@ -75,17 +81,18 @@
       "MetaModels\\AttributeTranslatedTableMultiBundle\\Test\\": "tests/Test"
     }
   },
-  "extra": {
-    "contao-manager-plugin": "MetaModels\\AttributeTranslatedTableMultiBundle\\ContaoManager\\Plugin",
-    "branch-alias": {
-      "dev-feature/2.3.0": "2.3.x-dev"
-    }
-  },
   "config": {
     "allow-plugins": {
       "contao-components/installer": false,
-      "contao/manager-plugin": false
+      "contao/manager-plugin": false,
+      "php-http/discovery": true
     },
     "sort-packages": true
+  },
+  "extra": {
+    "branch-alias": {
+      "dev-feature/2.3.0": "2.3.x-dev"
+    },
+    "contao-manager-plugin": "MetaModels\\AttributeTranslatedTableMultiBundle\\ContaoManager\\Plugin"
   }
 }
