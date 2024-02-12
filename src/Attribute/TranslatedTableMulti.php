@@ -3,7 +3,7 @@
 /**
  * This file is part of MetaModels/attribute_translatedtablemulti.
  *
- * (c) 2012-2023 The MetaModels team.
+ * (c) 2012-2024 The MetaModels team.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -20,7 +20,7 @@
  * @author     Stefan Heimes <stefan_heimes@hotmail.com>
  * @author     Ingolf Steinhardt <info@e-spin.de>
  * @author     Sven Baumann <baumann.sv@gmail.com>
- * @copyright  2012-2023 The MetaModels team.
+ * @copyright  2012-2024 The MetaModels team.
  * @license    https://github.com/MetaModels/attribute_translatedtablemulti/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
@@ -28,6 +28,7 @@
 namespace MetaModels\AttributeTranslatedTableMultiBundle\Attribute;
 
 use Contao\System;
+use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Query\QueryBuilder;
 use MetaModels\Attribute\Base;
 use MetaModels\Attribute\IComplex;
@@ -37,6 +38,8 @@ use Doctrine\DBAL\Connection;
 
 /**
  * This is the MetaModelAttribute class for handling table text fields.
+ *
+ * @SuppressWarnings(PHPMD.ExcessiveClassComplexity)
  */
 class TranslatedTableMulti extends Base implements ITranslated, IComplex
 {
@@ -45,18 +48,18 @@ class TranslatedTableMulti extends Base implements ITranslated, IComplex
      *
      * @var Connection
      */
-    private $connection;
+    private Connection $connection;
 
     /**
      * Instantiate an MetaModel attribute.
      *
      * Note that you should not use this directly but use the factory classes to instantiate attributes.
      *
-     * @param IMetaModel $objMetaModel The MetaModel instance this attribute belongs to.
-     * @param array      $arrData      The information array, for attribute information, refer to documentation of
-     *                                 table tl_metamodel_attribute and documentation of the certain attribute classes
-     *                                 for information what values are understood.
-     * @param Connection $connection   Database connection.
+     * @param IMetaModel      $objMetaModel The MetaModel instance this attribute belongs to.
+     * @param array           $arrData      The information array, for attribute information, refer to documentation of
+     *                                      table tl_metamodel_attribute and documentation of the certain attribute
+     *                                      classes for information what values are understood.
+     * @param Connection|null $connection   Database connection.
      */
     public function __construct(IMetaModel $objMetaModel, array $arrData = [], Connection $connection = null)
     {
@@ -70,8 +73,8 @@ class TranslatedTableMulti extends Base implements ITranslated, IComplex
             );
             // @codingStandardsIgnoreEnd
             $connection = System::getContainer()->get('database_connection');
+            assert($connection instanceof Connection);
         }
-
         $this->connection = $connection;
     }
 
@@ -80,7 +83,7 @@ class TranslatedTableMulti extends Base implements ITranslated, IComplex
      */
     public function getAttributeSettingNames()
     {
-        return array_merge(parent::getAttributeSettingNames(), []);
+        return \array_merge(parent::getAttributeSettingNames(), []);
     }
 
     /**
@@ -155,11 +158,13 @@ class TranslatedTableMulti extends Base implements ITranslated, IComplex
      * Build the where clause.
      *
      * @param QueryBuilder   $queryBuilder The query builder.
-     * @param null|array|int $mixIds       One, none or many ids to use.
-     * @param null           $strLangCode  The language code, optional.
-     * @param null           $intRow       The row number, optional.
-     * @param null           $varCol       The col number, optional.
-     * @param null           $tableAlias   The table alias, optional.
+     * @param null|list<int>|int $mixIds   One, none or many ids to use.
+     * @param string|null    $strLangCode  The language code, optional.
+     * @param int|null       $intRow       The row number, optional.
+     * @param string|null    $varCol       The col number, optional.
+     * @param string         $tableAlias   The table alias, optional.
+     *
+     * @return void
      */
     protected function buildWhere(
         QueryBuilder $queryBuilder,
@@ -167,27 +172,15 @@ class TranslatedTableMulti extends Base implements ITranslated, IComplex
         $strLangCode = null,
         $intRow = null,
         $varCol = null,
-        $tableAlias = null
-    ) {
-        if (null !== $tableAlias) {
+        $tableAlias = ''
+    ): void {
+        if ('' !== $tableAlias) {
             $tableAlias .= '.';
         }
 
         $queryBuilder
             ->andWhere($tableAlias . 'att_id = :att_id')
             ->setParameter('att_id', (int) $this->get('id'));
-
-        if (!empty($mixIds)) {
-            if (\is_array($mixIds)) {
-                $queryBuilder
-                    ->andWhere($tableAlias . 'item_id IN (:item_ids)')
-                    ->setParameter('item_ids', $mixIds, Connection::PARAM_STR_ARRAY);
-            } else {
-                $queryBuilder
-                    ->andWhere($tableAlias . 'item_id = :item_id')
-                    ->setParameter('item_id', $mixIds);
-            }
-        }
 
         if (\is_int($intRow) && \is_string($varCol)) {
             $queryBuilder
@@ -196,11 +189,28 @@ class TranslatedTableMulti extends Base implements ITranslated, IComplex
                 ->setParameter('col', $varCol);
         }
 
-        if ($strLangCode) {
+        if (!empty($strLangCode)) {
             $queryBuilder
                 ->andWhere($tableAlias . 'langcode = :langcode')
                 ->setParameter('langcode', $strLangCode);
         }
+
+        if (null === $mixIds) {
+            return;
+        }
+        if (\is_array($mixIds)) {
+            if ([] === $mixIds) {
+                return;
+            }
+
+            $queryBuilder
+                ->andWhere($tableAlias . 'item_id IN (:item_ids)')
+                ->setParameter('item_ids', $mixIds, ArrayParameterType::STRING);
+            return;
+        }
+        $queryBuilder
+            ->andWhere($tableAlias . 'item_id = :item_id')
+            ->setParameter('item_id', $mixIds);
     }
 
     /**
@@ -373,6 +383,7 @@ class TranslatedTableMulti extends Base implements ITranslated, IComplex
      */
     public function setDataFor($arrValues)
     {
+        /** @psalm-suppress DeprecatedMethod */
         $this->setTranslatedDataFor($arrValues, $this->getMetaModel()->getActiveLanguage());
     }
 
@@ -383,13 +394,15 @@ class TranslatedTableMulti extends Base implements ITranslated, IComplex
      */
     public function getDataFor($arrIds)
     {
-        $strActiveLanguage   = $this->getMetaModel()->getActiveLanguage();
+        /** @psalm-suppress DeprecatedMethod */
+        $strActiveLanguage = $this->getMetaModel()->getActiveLanguage();
+        /** @psalm-suppress DeprecatedMethod */
         $strFallbackLanguage = $this->getMetaModel()->getFallbackLanguage();
 
         $arrReturn = $this->getTranslatedDataFor($arrIds, $strActiveLanguage);
 
         // Second round, fetch fallback languages if not all items could be resolved.
-        if ((\count($arrReturn) < \count($arrIds)) && ($strActiveLanguage != $strFallbackLanguage)) {
+        if ((\count($arrReturn) < \count($arrIds)) && ($strActiveLanguage !== $strFallbackLanguage)) {
             $arrFallbackIds = [];
             foreach ($arrIds as $intId) {
                 if (empty($arrReturn[$intId])) {
