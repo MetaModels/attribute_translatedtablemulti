@@ -35,6 +35,7 @@ use MetaModels\Attribute\IComplex;
 use MetaModels\Attribute\ITranslated;
 use MetaModels\IMetaModel;
 use Doctrine\DBAL\Connection;
+use MetaModels\ITranslatedMetaModel;
 
 /**
  * This is the MetaModelAttribute class for handling table text fields.
@@ -157,12 +158,12 @@ class TranslatedTableMulti extends Base implements ITranslated, IComplex
     /**
      * Build the where clause.
      *
-     * @param QueryBuilder   $queryBuilder The query builder.
-     * @param null|list<int>|int $mixIds   One, none or many ids to use.
-     * @param string|null    $strLangCode  The language code, optional.
-     * @param int|null       $intRow       The row number, optional.
-     * @param string|null    $varCol       The col number, optional.
-     * @param string         $tableAlias   The table alias, optional.
+     * @param QueryBuilder       $queryBuilder The query builder.
+     * @param null|list<string>|string $mixIds       One, none or many ids to use.
+     * @param string|null        $strLangCode  The language code, optional.
+     * @param int|null           $intRow       The row number, optional.
+     * @param string|null        $varCol       The col number, optional.
+     * @param string             $tableAlias   The table alias, optional.
      *
      * @return void
      */
@@ -189,7 +190,7 @@ class TranslatedTableMulti extends Base implements ITranslated, IComplex
                 ->setParameter('col', $varCol);
         }
 
-        if (!empty($strLangCode)) {
+        if ('' !== $strLangCode && null !== $strLangCode) {
             $queryBuilder
                 ->andWhere($tableAlias . 'langcode = :langcode')
                 ->setParameter('langcode', $strLangCode);
@@ -259,7 +260,7 @@ class TranslatedTableMulti extends Base implements ITranslated, IComplex
      * Retrieve the setter array.
      *
      * @param array  $arrCell     The cells of the table.
-     * @param int    $intId       The id of the item.
+     * @param string $intId       The id of the item.
      * @param string $strLangCode The language code.
      *
      * @return array
@@ -320,12 +321,12 @@ class TranslatedTableMulti extends Base implements ITranslated, IComplex
         // Reset all data for the ids in language.
         $this->unsetValueFor($arrIds, $strLangCode);
 
-        foreach ($arrIds as $intId) {
+        foreach ($arrIds as $itemId) {
             // Walk every row.
-            foreach ((array) $arrValues[$intId] as $row) {
+            foreach ((array) $arrValues[$itemId] as $row) {
                 // Walk every column and update / insert the value.
                 foreach ($row as $col) {
-                    $values = $this->getSetValues($col, $intId, $strLangCode);
+                    $values = $this->getSetValues($col, $itemId, $strLangCode);
                     if ($values['value'] === '') {
                         continue;
                     }
@@ -383,8 +384,15 @@ class TranslatedTableMulti extends Base implements ITranslated, IComplex
      */
     public function setDataFor($arrValues)
     {
-        /** @psalm-suppress DeprecatedMethod */
-        $this->setTranslatedDataFor($arrValues, $this->getMetaModel()->getActiveLanguage());
+        $metamodel = $this->getMetaModel();
+        if ($metamodel instanceof ITranslatedMetaModel) {
+            $activeLanguage = $metamodel->getLanguage();
+        } else {
+            // FIXME: trigger deprecation - see other code.
+            /** @psalm-suppress DeprecatedMethod */
+            $activeLanguage = $this->getMetaModel()->getActiveLanguage();
+        }
+        $this->setTranslatedDataFor($arrValues, $activeLanguage);
     }
 
     /**
@@ -394,15 +402,23 @@ class TranslatedTableMulti extends Base implements ITranslated, IComplex
      */
     public function getDataFor($arrIds)
     {
-        /** @psalm-suppress DeprecatedMethod */
-        $strActiveLanguage = $this->getMetaModel()->getActiveLanguage();
-        /** @psalm-suppress DeprecatedMethod */
-        $strFallbackLanguage = $this->getMetaModel()->getFallbackLanguage();
+        $metamodel = $this->getMetaModel();
+        if ($metamodel instanceof ITranslatedMetaModel) {
+            $strActiveLanguage = $metamodel->getLanguage();
+            $strFallbackLanguage = $metamodel->getMainLanguage();
+        } else {
+            // FIXME: trigger deprecation - see other code.
+            /** @psalm-suppress DeprecatedMethod */
+            $strActiveLanguage = $this->getMetaModel()->getActiveLanguage();
+            /** @psalm-suppress DeprecatedMethod */
+            $strFallbackLanguage = $this->getMetaModel()->getFallbackLanguage();
+            assert(is_string($strFallbackLanguage));
+        }
 
         $arrReturn = $this->getTranslatedDataFor($arrIds, $strActiveLanguage);
 
         // Second round, fetch fallback languages if not all items could be resolved.
-        if ((\count($arrReturn) < \count($arrIds)) && ($strActiveLanguage !== $strFallbackLanguage)) {
+        if (($strActiveLanguage !== $strFallbackLanguage) && (\count($arrReturn) < \count($arrIds))) {
             $arrFallbackIds = [];
             foreach ($arrIds as $intId) {
                 if (empty($arrReturn[$intId])) {
