@@ -3,7 +3,7 @@
 /**
  * This file is part of MetaModels/attribute_translatedtablemulti.
  *
- * (c) 2012-2022 The MetaModels team.
+ * (c) 2012-2024 The MetaModels team.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -14,7 +14,7 @@
  * @author     Stefan Heimes <stefan_heimes@hotmail.com>
  * @author     Ingolf Steinhardt <info@e-spin.de>
  * @author     Sven Baumann <baumann.sv@gmail.com>
- * @copyright  2012-2022 The MetaModels team.
+ * @copyright  2012-2024 The MetaModels team.
  * @license    https://github.com/MetaModels/attribute_translatedtablemulti/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
@@ -38,7 +38,7 @@ class ChangeTranslatedTableNameMigration extends AbstractMigration
      *
      * @var Connection
      */
-    private $connection;
+    private Connection $connection;
 
     /**
      * Create a new instance.
@@ -70,9 +70,11 @@ class ChangeTranslatedTableNameMigration extends AbstractMigration
      */
     public function shouldRun(): bool
     {
-        $schemaManager = $this->connection->getSchemaManager();
-        if ($schemaManager->tablesExist(['tl_metamodel_translatedmulti'])
-            && $schemaManager->tablesExist(['tl_metamodel_translatedtablemulti'])) {
+        $schemaManager = $this->connection->createSchemaManager();
+        if (
+            $schemaManager->tablesExist(['tl_metamodel_translatedmulti'])
+            && $schemaManager->tablesExist(['tl_metamodel_translatedtablemulti'])
+        ) {
             $error  = 'Could not migrate attribute_translatedtablemulti.';
             $error .= ' Reason: There are both tables available.';
             $error .= ' Old table: tl_metamodel_translatedmulti | New table: attribute_translatedtablemulti.';
@@ -94,7 +96,7 @@ class ChangeTranslatedTableNameMigration extends AbstractMigration
      */
     public function run(): MigrationResult
     {
-        $schemaManager = $this->connection->getSchemaManager();
+        $schemaManager = $this->connection->createSchemaManager();
 
         if ($schemaManager->tablesExist(['tl_metamodel_translatedmulti'])) {
             $schemaManager->renameTable('tl_metamodel_translatedmulti', 'tl_metamodel_translatedtablemulti');
@@ -105,7 +107,7 @@ class ChangeTranslatedTableNameMigration extends AbstractMigration
                 ->where('t.type=:old_name')
                 ->setParameter('new_name', 'translatedtablemulti')
                 ->setParameter('old_name', 'translatedmulti')
-                ->execute();
+                ->executeQuery();
 
             $this->connection->createQueryBuilder()
                 ->update('tl_metamodel_rendersetting', 't')
@@ -113,7 +115,7 @@ class ChangeTranslatedTableNameMigration extends AbstractMigration
                 ->where('t.template=:old_name')
                 ->setParameter('new_name', 'mm_attr_translatedtablemulti')
                 ->setParameter('old_name', 'mm_attr_translatedmulti')
-                ->execute();
+                ->executeQuery();
 
             return new MigrationResult(true, 'Rename table tl_metamodel_multi to tl_metamodel_translatedtablemulti.');
         }
