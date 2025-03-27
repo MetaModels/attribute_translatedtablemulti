@@ -147,9 +147,8 @@ class TranslatedTableMulti extends Base implements ITranslated, IComplex
                 }
             }
 
-            // Build the array.
-            $arrFieldDef['inputType'] = 'multiColumnWizard';
-            $arrFieldDef['eval']      = $config;
+            // Append the eval config.
+            $arrFieldDef['eval'] = $config;
         }
 
         return $arrFieldDef;
@@ -323,7 +322,7 @@ class TranslatedTableMulti extends Base implements ITranslated, IComplex
 
         foreach ($arrIds as $itemId) {
             // Walk every row.
-            foreach ((array) $arrValues[$itemId] as $row) {
+            foreach ($arrValues[$itemId] ?? [] as $row) {
                 // Walk every column and update / insert the value.
                 foreach ($row as $col) {
                     $values = $this->getSetValues($col, $itemId, $strLangCode);
@@ -421,7 +420,7 @@ class TranslatedTableMulti extends Base implements ITranslated, IComplex
         if (($strActiveLanguage !== $strFallbackLanguage) && (\count($arrReturn) < \count($arrIds))) {
             $arrFallbackIds = [];
             foreach ($arrIds as $intId) {
-                if (empty($arrReturn[$intId])) {
+                if (null === ($arrReturn[$intId] ?? null)) {
                     $arrFallbackIds[] = $intId;
                 }
             }
@@ -447,14 +446,7 @@ class TranslatedTableMulti extends Base implements ITranslated, IComplex
      */
     public function unsetDataFor($arrIds)
     {
-        if (!\is_array($arrIds)) {
-            throw new \RuntimeException(
-                'TranslatedTableMulti::unsetDataFor() invalid parameter given! Array of ids is needed.',
-                1
-            );
-        }
-
-        if (empty($arrIds)) {
+        if ([] === $arrIds) {
             return;
         }
 
